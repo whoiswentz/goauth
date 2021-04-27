@@ -7,6 +7,7 @@ import (
 
 	"github.com/whoiswentz/goauth/database"
 	"github.com/whoiswentz/goauth/posts"
+	"github.com/whoiswentz/goauth/users"
 )
 
 func main() {
@@ -17,10 +18,14 @@ func main() {
 	db.RunMigrations()
 
 	ph := posts.NewPostsHandler(db)
+	uh := users.NewUserHandler(db)
 
 	r := http.NewServeMux()
 	r.HandleFunc("/posts/create", ph.CreatePost)
 	r.HandleFunc("/posts/list", ph.ListPosts)
+
+	r.HandleFunc("/users", uh.CreateOrListUser)
+	r.HandleFunc("/users/delete", uh.DeleteUser)
 
 	s := &http.Server{
 		Addr:           ":8080",

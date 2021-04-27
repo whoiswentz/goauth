@@ -4,6 +4,8 @@ import "github.com/whoiswentz/goauth/database"
 
 func create(db *database.Database, p Post) (*Post, error) {
 	stmt, err := db.Db.Prepare("INSERT INTO posts (title, content) VALUES (?, ?)")
+	defer stmt.Close()
+
 	if err != nil {
 		return nil, err
 	}

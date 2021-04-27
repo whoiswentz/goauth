@@ -24,7 +24,7 @@ func (d Database) RunMigrations() {
 	}
 	log.Println(r)
 
-	r, err = d.Db.Exec(sqls.USUARIOS_SCHEMA)
+	r, err = d.Db.Exec(sqls.USERS_SCHEMA)
 	if err != nil {
 		log.Fatal(err)
 	}
