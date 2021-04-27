@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/whoiswentz/goauth/auth"
 	"github.com/whoiswentz/goauth/database"
+	"github.com/whoiswentz/goauth/middlewares"
 	"github.com/whoiswentz/goauth/posts"
 	"github.com/whoiswentz/goauth/users"
 )
@@ -29,7 +30,10 @@ func main() {
 
 	mux.HandleFunc("/users", uh.CreateUser).Methods(http.MethodPost)
 	mux.HandleFunc("/users", uh.ListUsers).Methods(http.MethodGet)
-	mux.HandleFunc("/users/:id", uh.DeleteUser).Methods(http.MethodDelete)
+	mux.HandleFunc("/users/{id}", middlewares.Chain(
+		uh.DeleteUser,
+		middlewares.RequireToken(),
+	)).Methods(http.MethodDelete)
 
 	mux.HandleFunc("/auth/login", ah.Login).Methods(http.MethodPost)
 
