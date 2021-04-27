@@ -15,6 +15,10 @@ func create(db *database.Database, u *User) (*User, error) {
 		return nil, err
 	}
 
+	if err := u.HashPassword(); err != nil {
+		return nil, err
+	}
+
 	res, err := stmt.Exec(u.Name, u.Email, u.Password)
 	if err != nil {
 		return nil, err
@@ -44,7 +48,7 @@ func byId(db *database.Database, id int64) (*User, error) {
 	return &user, nil
 }
 
-func byEmail(db *database.Database, email string) (*User, error) {
+func ByEmail(db *database.Database, email string) (*User, error) {
 	row := db.Db.QueryRow("SELECT * FROM users WHERE email = ?", email)
 
 	var user User

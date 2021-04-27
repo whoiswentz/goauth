@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gorilla/mux"
+	"github.com/whoiswentz/goauth/auth"
 	"github.com/whoiswentz/goauth/database"
 	"github.com/whoiswentz/goauth/posts"
 	"github.com/whoiswentz/goauth/users"
@@ -19,17 +21,21 @@ func main() {
 
 	ph := posts.NewPostsHandler(db)
 	uh := users.NewUserHandler(db)
+	ah := auth.NewAuthHandler(db)
 
-	r := http.NewServeMux()
-	r.HandleFunc("/posts/create", ph.CreatePost)
-	r.HandleFunc("/posts/list", ph.ListPosts)
+	mux := mux.NewRouter()
+	mux.HandleFunc("/posts/create", ph.CreatePost).Methods(http.MethodPost)
+	mux.HandleFunc("/posts/list", ph.ListPosts).Methods(http.MethodGet)
 
-	r.HandleFunc("/users", uh.CreateOrListUser)
-	r.HandleFunc("/users/delete", uh.DeleteUser)
+	mux.HandleFunc("/users", uh.CreateUser).Methods(http.MethodPost)
+	mux.HandleFunc("/users", uh.ListUsers).Methods(http.MethodGet)
+	mux.HandleFunc("/users/:id", uh.DeleteUser).Methods(http.MethodDelete)
+
+	mux.HandleFunc("/auth/login", ah.Login).Methods(http.MethodPost)
 
 	s := &http.Server{
 		Addr:           ":8080",
-		Handler:        r,
+		Handler:        mux,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
