@@ -2,7 +2,6 @@ package users
 
 import (
 	"database/sql"
-	"log"
 
 	"github.com/whoiswentz/goauth/database"
 )
@@ -92,12 +91,10 @@ func delete(db *database.Database, u User) error {
 		return err
 	}
 
-	count, err := res.RowsAffected()
+	_, err = res.RowsAffected()
 	if err != nil {
 		return err
 	}
-
-	log.Printf("total of %d rows affected", count)
 
 	return nil
 }

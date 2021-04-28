@@ -18,15 +18,13 @@ func Open() (*Database, error) {
 }
 
 func (d Database) RunMigrations() {
-	r, err := d.Db.Exec(sqls.POSTS_SCHEMA)
+	_, err := d.Db.Exec(sqls.POSTS_SCHEMA)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println(r)
 
-	r, err = d.Db.Exec(sqls.USERS_SCHEMA)
+	_, err = d.Db.Exec(sqls.USERS_SCHEMA)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println(r)
 }

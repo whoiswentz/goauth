@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/whoiswentz/goauth/auth"
+	"github.com/whoiswentz/goauth/cache"
 	"github.com/whoiswentz/goauth/database"
 	"github.com/whoiswentz/goauth/middlewares"
 	"github.com/whoiswentz/goauth/posts"
@@ -20,6 +21,8 @@ func main() {
 	}
 	db.RunMigrations()
 
+	blackListCache := cache.NewCacheWithTTL()
+
 	ph := posts.NewPostsHandler(db)
 	uh := users.NewUserHandler(db)
 	ah := auth.NewAuthHandler(db)
@@ -32,11 +35,10 @@ func main() {
 	mux.HandleFunc("/users", uh.ListUsers).Methods(http.MethodGet)
 	mux.HandleFunc("/users/{id}", middlewares.Chain(
 		uh.DeleteUser,
-		middlewares.RequireToken(),
+		middlewares.RequireToken(blackListCache),
 	)).Methods(http.MethodDelete)
 
 	mux.HandleFunc("/auth/login", ah.Login).Methods(http.MethodPost)
-
 	s := &http.Server{
 		Addr:           ":8080",
 		Handler:        mux,
