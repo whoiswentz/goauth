@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/whoiswentz/goauth/cache"
 	"github.com/whoiswentz/goauth/helpers"
+	"github.com/whoiswentz/goauth/infrastructure/cache"
 )
 
 func RequireToken(c *cache.Cache) Middleware {

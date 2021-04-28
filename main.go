@@ -10,7 +10,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/whoiswentz/goauth/auth"
-	"github.com/whoiswentz/goauth/cache"
+	"github.com/whoiswentz/goauth/infrastructure/cache"
+
 	"github.com/whoiswentz/goauth/database"
 	"github.com/whoiswentz/goauth/middlewares"
 	"github.com/whoiswentz/goauth/posts"
