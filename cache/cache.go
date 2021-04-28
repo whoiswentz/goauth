@@ -24,26 +24,34 @@ var (
 	ErrKeyAlreadyExists = errors.New("key already exists")
 )
 
-func NewCacheWithTTL(o bool) *Cache {
+func NewCacheWithTTL() *Cache {
+	c := Cache{
+		store: make(map[string]*element),
+	}
+	go c.startTTL()
+	return &c
+}
+
+func NewCacheWithTTLAndOverride(o bool) *Cache {
 	c := Cache{
 		store:    make(map[string]*element),
 		override: o,
 	}
-
-	go func() {
-		for now := range time.Tick(time.Second) {
-			c.l.Lock()
-
-			for k, v := range c.store {
-				if v.ttl > 0 && now.Unix() > v.ttl {
-					delete(c.store, k)
-				}
-			}
-			c.l.Unlock()
-		}
-	}()
-
+	go c.startTTL()
 	return &c
+}
+
+func (c *Cache) startTTL() {
+	for now := range time.Tick(time.Second) {
+		c.l.Lock()
+
+		for k, v := range c.store {
+			if v.ttl > 0 && now.Unix() > v.ttl {
+				delete(c.store, k)
+			}
+		}
+		c.l.Unlock()
+	}
 }
 
 func (c *Cache) Len() int {
