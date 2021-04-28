@@ -15,10 +15,11 @@ type SignedDetails struct {
 	jwt.StandardClaims
 }
 
-var SECRET_KEY string = "N2FQNlFMeDUyUUg5dzJlaW50bUNzV"
-
-var ErrTokenExired = errors.New("token is expired")
-var ErrTokenInvalid = errors.New("the token is invalid")
+var (
+	SECRET_KEY      = RandomStringBase64(256)
+	ErrTokenExired  = errors.New("token is expired")
+	ErrTokenInvalid = errors.New("the token is invalid")
+)
 
 func GenerateAllTokens(email string, name string, id int64) (signedToken string, signedRefreshToken string, err error) {
 	claims := &SignedDetails{
