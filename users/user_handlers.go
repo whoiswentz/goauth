@@ -18,10 +18,8 @@ func NewUserHandler(db *database.Database) *userHandler {
 }
 
 func (h userHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	decoder := json.NewDecoder(r.Body)
-
 	var user User
-	if err := decoder.Decode(&user); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))

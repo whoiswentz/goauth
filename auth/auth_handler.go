@@ -18,10 +18,8 @@ func NewAuthHandler(db *database.Database) *authHandler {
 }
 
 func (h *authHandler) Login(w http.ResponseWriter, r *http.Request) {
-	decoder := json.NewDecoder(r.Body)
-
 	var login Login
-	if err := decoder.Decode(&login); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&login); err != nil {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))

@@ -22,10 +22,9 @@ func (h *postHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("StatusMethodNotAllowed"))
 		return
 	}
-	decoder := json.NewDecoder(r.Body)
 
 	var post Post
-	if err := decoder.Decode(&post); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&post); err != nil {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("StatusBadRequest"))
