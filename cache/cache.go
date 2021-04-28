@@ -6,14 +6,14 @@ import (
 	"time"
 )
 
-type item struct {
+type element struct {
 	key   string
 	value interface{}
 	ttl   int64
 }
 
 type Cache struct {
-	store    map[string]*item
+	store    map[string]*element
 	l        sync.Mutex
 	override bool
 }
@@ -25,7 +25,7 @@ var (
 )
 
 func NewCacheWithTTL() *Cache {
-	c := Cache{store: make(map[string]*item)}
+	c := Cache{store: make(map[string]*element)}
 	go func() {
 		for now := range time.Tick(time.Second) {
 			c.l.Lock()
@@ -54,7 +54,7 @@ func (c *Cache) Put(k string, ttl int, v interface{}) error {
 			return ErrKeyAlreadyExists
 		}
 
-		c.store[k] = &item{key: k, value: v, ttl: int64(ttl)}
+		c.store[k] = &element{key: k, value: v, ttl: int64(ttl)}
 	}
 
 	c.l.Unlock()
