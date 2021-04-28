@@ -26,7 +26,7 @@ func create(db *database.Database, p Post) (*Post, error) {
 }
 
 func list(db *database.Database) ([]Post, error) {
-	rows, err := db.Db.Query("SELECT * from posts")
+	rows, err := db.Db.Query("SELECT * FROM posts")
 	if err != nil {
 		return nil, err
 	}
