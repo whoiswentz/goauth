@@ -50,6 +50,7 @@ func (c *Cache) startTTL() {
 				delete(c.store, k)
 			}
 		}
+
 		c.l.Unlock()
 	}
 }
@@ -60,6 +61,7 @@ func (c *Cache) Len() int {
 
 func (c *Cache) Put(k string, ttl int, v interface{}) error {
 	c.l.Lock()
+	defer c.l.Unlock()
 
 	_, ok := c.store[k]
 	if !ok {
@@ -70,17 +72,16 @@ func (c *Cache) Put(k string, ttl int, v interface{}) error {
 		c.store[k] = &element{key: k, value: v, ttl: int64(ttl)}
 	}
 
-	c.l.Unlock()
 	return nil
 }
 
 func (c *Cache) Get(k string) (interface{}, error) {
 	c.l.Lock()
+	defer c.l.Unlock()
 
 	if it, ok := c.store[k]; ok {
 		return it.value, nil
 	}
 
-	c.l.Unlock()
 	return nil, ErrCacheMiss
 }
