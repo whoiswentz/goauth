@@ -2,7 +2,6 @@ package cache
 
 import (
 	"errors"
-	"log"
 	"sync"
 	"time"
 )
@@ -29,7 +28,6 @@ func NewCacheWithTTL() *Cache {
 	c := Cache{store: make(map[string]*item)}
 	go func() {
 		for now := range time.Tick(time.Second) {
-			log.Println(c)
 			c.l.Lock()
 
 			for k, v := range c.store {
