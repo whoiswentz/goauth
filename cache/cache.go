@@ -50,15 +50,11 @@ func (c *Cache) Put(k string, ttl int, v interface{}) error {
 
 	_, ok := c.store[k]
 	if !ok {
-		c.store[k] = &item{
-			key:   k,
-			value: v,
-			ttl:   int64(ttl),
-		}
-
 		if !c.override {
 			return ErrKeyAlreadyExists
 		}
+
+		c.store[k] = &item{key: k, value: v, ttl: int64(ttl)}
 	}
 
 	c.l.Unlock()
