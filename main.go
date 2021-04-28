@@ -30,7 +30,7 @@ func main() {
 	}
 	db.RunMigrations()
 
-	blackListCache := cache.NewCacheWithTTL()
+	blackListCache := cache.NewCacheWithTTL(true)
 	mux := NewRouter(db, blackListCache)
 
 	port := os.Getenv("PORT")
