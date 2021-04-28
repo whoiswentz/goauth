@@ -24,8 +24,12 @@ var (
 	ErrKeyAlreadyExists = errors.New("key already exists")
 )
 
-func NewCacheWithTTL() *Cache {
-	c := Cache{store: make(map[string]*element)}
+func NewCacheWithTTL(o bool) *Cache {
+	c := Cache{
+		store:    make(map[string]*element),
+		override: o,
+	}
+
 	go func() {
 		for now := range time.Tick(time.Second) {
 			c.l.Lock()
@@ -38,6 +42,7 @@ func NewCacheWithTTL() *Cache {
 			c.l.Unlock()
 		}
 	}()
+
 	return &c
 }
 
