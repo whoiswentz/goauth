@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -31,7 +32,12 @@ func main() {
 	}
 	db.RunMigrations()
 
-	blackListCache := cache.NewCacheWithTTL()
+	duration, err := strconv.Atoi(os.Getenv("TOKEN_DURATION"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	blackListCache := cache.NewCacheWithTTL(int64(duration))
 	mux := NewRouter(db, blackListCache)
 
 	port := os.Getenv("PORT")
@@ -66,6 +72,11 @@ func NewRouter(db *database.Database, c *cache.Cache) *mux.Router {
 	)).Methods(http.MethodDelete)
 
 	mux.HandleFunc("/auth/login", ah.Login).Methods(http.MethodPost)
+	mux.HandleFunc("/auth/logout", middlewares.Chain(
+		ah.Logout,
+		middlewares.RequireToken(c),
+		middlewares.InvalidateToken(c),
+	)).Methods(http.MethodGet)
 
 	return mux
 }

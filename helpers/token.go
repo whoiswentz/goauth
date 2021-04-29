@@ -3,6 +3,8 @@ package helpers
 import (
 	"errors"
 	"log"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -22,18 +24,27 @@ var (
 )
 
 func GenerateAllTokens(email string, name string, id int64) (signedToken string, signedRefreshToken string, err error) {
+	TOKEN_DURATION := os.Getenv("TOKEN_DURATION")
+	REFRESH_DURATION := os.Getenv("REFRESH_DURATION")
+
+	duration, err := strconv.Atoi(TOKEN_DURATION)
+	refreshDuration, err := strconv.Atoi(REFRESH_DURATION)
+	if err != nil {
+		return "", "", err
+	}
+
 	claims := &SignedDetails{
 		Email: email,
 		Name:  name,
 		Id:    id,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(24)).Unix(),
+			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(duration)).Unix(),
 		},
 	}
 
 	refreshClaims := &SignedDetails{
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(168)).Unix(),
+			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(refreshDuration)).Unix(),
 		},
 	}
 

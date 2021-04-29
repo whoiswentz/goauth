@@ -1,87 +1,58 @@
 package cache
 
 import (
-	"errors"
 	"sync"
 	"time"
 )
 
-type element struct {
-	key   string
-	value interface{}
-	ttl   int64
-}
-
 type Cache struct {
-	store    map[string]*element
-	l        sync.Mutex
-	override bool
+	store      sync.Map
+	ttlEnabled bool
+	ttl        int64
+	mu         sync.Mutex
 }
 
-var (
-	ErrZeroTTL          = errors.New("ttl must be greater than zero")
-	ErrCacheMiss        = errors.New("cache miss error")
-	ErrKeyAlreadyExists = errors.New("key already exists")
-)
-
-func NewCacheWithTTL() *Cache {
+func NewCacheWithTTL(ttl int64) *Cache {
 	c := Cache{
-		store: make(map[string]*element),
+		store:      sync.Map{},
+		ttlEnabled: true,
+		ttl:        ttl,
 	}
 	go c.startTTL()
 	return &c
 }
 
-func NewCacheWithTTLAndOverride(o bool) *Cache {
-	c := Cache{
-		store:    make(map[string]*element),
-		override: o,
+func NewCache() *Cache {
+	return &Cache{
+		store: sync.Map{},
 	}
-	go c.startTTL()
-	return &c
 }
 
 func (c *Cache) startTTL() {
 	for now := range time.Tick(time.Second) {
-		c.l.Lock()
+		c.mu.Lock()
 
-		for k, v := range c.store {
-			if v.ttl > 0 && now.Unix() > v.ttl {
-				delete(c.store, k)
+		c.store.Range(func(key, value interface{}) bool {
+			if now.Unix() > c.ttl {
+				c.store.Delete(key)
 			}
-		}
+			return true
+		})
 
-		c.l.Unlock()
+		c.mu.Unlock()
 	}
 }
 
-func (c *Cache) Len() int {
-	return len(c.store)
+func (c *Cache) Load(k string) (interface{}, bool) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	return c.store.Load(k)
 }
 
-func (c *Cache) Put(k string, ttl int, v interface{}) error {
-	c.l.Lock()
-	defer c.l.Unlock()
+func (c *Cache) Store(k string, v interface{}) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
-	_, ok := c.store[k]
-	if !ok {
-		if !c.override {
-			return ErrKeyAlreadyExists
-		}
-
-		c.store[k] = &element{key: k, value: v, ttl: int64(ttl)}
-	}
-
-	return nil
-}
-
-func (c *Cache) Get(k string) (interface{}, error) {
-	c.l.Lock()
-	defer c.l.Unlock()
-
-	if it, ok := c.store[k]; ok {
-		return it.value, nil
-	}
-
-	return nil, ErrCacheMiss
+	c.store.Store(k, v)
 }

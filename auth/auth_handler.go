@@ -64,3 +64,7 @@ func (h *authHandler) Login(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(loginRespBytes)
 }
+
+func (ah *authHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNoContent)
+}
