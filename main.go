@@ -76,7 +76,6 @@ func NewRouter(db *database.Database, c *cache.Cache) *mux.Router {
 	mux.HandleFunc("/auth/login", ah.Login).Methods(http.MethodPost)
 	mux.HandleFunc("/auth/logout", middlewares.Chain(
 		ah.Logout,
-		middlewares.RequireToken(c),
 		middlewares.InvalidateToken(c),
 	)).Methods(http.MethodGet)
 
