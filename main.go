@@ -37,7 +37,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	blackListCache := cache.NewCacheWithTTL(int64(duration))
+	blackListCache := cache.NewCacheWithTTL(
+		time.Now().Local().Add(time.Hour * time.Duration(duration)),
+	)
 	mux := NewRouter(db, blackListCache)
 
 	port := os.Getenv("PORT")
